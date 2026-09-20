@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Análise das Demonstrações Financeiras — Guia de Estudo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#10243E;
+  --ink-soft:#33465F;
+  --paper:#F3F6F4;
+  --paper-raised:#FFFFFF;
+  --teal:#1F7A5C;
+  --teal-deep:#155C45;
+  --amber:#B8722E;
+  --rose:#A8425A;
+  --line:#D8E0DC;
+  --line-soft:#E7ECE9;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#EAF0EC; --ink-soft:#B7C4BE; --paper:#0D1712; --paper-raised:#142019;
+    --teal:#4FBE95; --teal-deep:#3D9E7A; --amber:#E0A15C; --rose:#E28497;
+    --line:#243530; --line-soft:#1B2822;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#EAF0EC; --ink-soft:#B7C4BE; --paper:#0D1712; --paper-raised:#142019;
+  --teal:#4FBE95; --teal-deep:#3D9E7A; --amber:#E0A15C; --rose:#E28497;
+  --line:#243530; --line-soft:#1B2822;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'IBM Plex Sans',sans-serif; font-size:15.5px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:'Source Serif 4',serif; font-weight:600; margin:0 0 .4em; color:var(--ink);}
+.num{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+button, select, input{font-family:inherit;}
+a{color:var(--teal-deep);}
+
+/* Shell */
+.shell{display:flex; min-height:100vh;}
+.side{
+  width:252px; flex:none; background:var(--paper-raised); border-right:1px solid var(--line);
+  position:sticky; top:0; height:100vh; overflow-y:auto; padding:22px 0 30px;
+}
+.side-head{padding:0 20px 16px; border-bottom:1px solid var(--line-soft); margin-bottom:10px;}
+.side-head .eyebrow{font-size:12px; color:var(--teal-deep); font-weight:600;}
+.side-head h1{font-size:18px; line-height:1.25; margin-top:4px;}
+.side nav{display:flex; flex-direction:column;}
+.side button.navitem{
+  all:unset; cursor:pointer; display:flex; gap:10px; align-items:baseline;
+  padding:9px 20px; font-size:14px; color:var(--ink-soft); border-left:3px solid transparent;
+}
+.side button.navitem .idx{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--line);}
+.side button.navitem:hover{background:var(--line-soft); color:var(--ink);}
+.side button.navitem.active{border-left-color:var(--teal); color:var(--ink); font-weight:600; background:var(--line-soft);}
+.side button.navitem.active .idx{color:var(--teal-deep);}
+.side .grp-label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); opacity:.65; padding:16px 20px 4px;}
+
+.main{flex:1; min-width:0; padding:38px 44px 90px; max-width:900px;}
+.topbar{display:none;}
+
+section.panel{display:none;}
+section.panel.active{display:block; animation:fade .25s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+.kicker{font-size:13px; color:var(--teal-deep); font-weight:600; margin-bottom:6px;}
+.panel > h2{font-size:28px; margin-bottom:6px;}
+.lede{color:var(--ink-soft); max-width:62ch; margin-bottom:28px; font-size:15px;}
+
+.card{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:8px;
+  padding:18px 20px; margin-bottom:16px;
+}
+.card.accent-teal{border-left:4px solid var(--teal);}
+.card.accent-amber{border-left:4px solid var(--amber);}
+.card.accent-rose{border-left:4px solid var(--rose);}
+.card h3{font-size:16px; margin-bottom:8px;}
+.card p{margin:.3em 0;}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+.formula-box{
+  background:var(--line-soft); border:1px dashed var(--line); border-radius:6px;
+  padding:12px 14px; font-family:'IBM Plex Mono',monospace; font-size:14.5px; margin:10px 0;
+  overflow-x:auto; white-space:nowrap;
+}
+
+table{width:100%; border-collapse:collapse; font-size:13.6px;}
+table.data th, table.data td{text-align:right; padding:6px 8px; border-bottom:1px solid var(--line-soft); white-space:nowrap;}
+table.data th{color:var(--ink-soft); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em;}
+table.data td:first-child, table.data th:first-child{text-align:left;}
+table.data tr.group td{font-weight:700; background:var(--line-soft);}
+table.data tr.group td:first-child{cursor:pointer;}
+table.data tr.child td:first-child{padding-left:22px; color:var(--ink-soft);}
+table.data tr.child{display:none;}
+table.data tr.child.show{display:table-row;}
+table.data .caret{display:inline-block; width:10px; transition:transform .15s;}
+table.data tr.group.open .caret{transform:rotate(90deg);}
+.scrollx{overflow-x:auto;}
+
+.tag{display:inline-block; font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:20px; background:var(--line-soft); color:var(--ink-soft); margin-right:4px;}
+.tag.good{background:rgba(31,122,92,.14); color:var(--teal-deep);}
+.tag.bad{background:rgba(168,66,90,.14); color:var(--rose);}
+
+/* Calculators */
+.calc-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0;}
+.calc-row label{font-size:13px; color:var(--ink-soft); display:flex; flex-direction:column; gap:4px;}
+select, .yearbtns button{
+  background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:7px 10px;
+  color:var(--ink); font-size:14px;
+}
+.yearbtns{display:flex; gap:6px;}
+.yearbtns button{cursor:pointer; padding:6px 14px;}
+.yearbtns button.sel{background:var(--teal); border-color:var(--teal); color:#fff; font-weight:600;}
+.result-box{
+  margin-top:12px; padding:14px 16px; border-radius:6px; background:var(--line-soft);
+  border:1px solid var(--line);
+}
+.result-box .big{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; color:var(--teal-deep);}
+.result-box.negative .big{color:var(--rose);}
+
+/* Classification game */
+.acct-pool{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;}
+.acct-pool button.chip{
+  cursor:pointer; border:1px solid var(--line); background:var(--paper-raised); color:var(--ink);
+  padding:7px 12px; border-radius:20px; font-size:13.5px;
+}
+.acct-pool button.chip.done{opacity:.35; pointer-events:none;}
+.dropzones{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:6px;}
+@media(max-width:700px){.dropzones{grid-template-columns:1fr;}}
+.dz{border:2px dashed var(--line); border-radius:8px; padding:10px; min-height:120px; font-size:13px;}
+.dz h4{font-size:13px; margin-bottom:6px; color:var(--ink-soft);}
+.dz .placed{display:inline-block; background:var(--line-soft); border-radius:14px; padding:4px 10px; margin:3px 3px 0 0; font-size:12.5px;}
+.dz.flash-ok{background:rgba(31,122,92,.1);}
+.dz.flash-bad{background:rgba(168,66,90,.1);}
+.classify-status{font-size:13px; margin-top:8px; color:var(--ink-soft);}
+
+/* Template generator */
+.tpl-output{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:8px; padding:16px 18px;
+  font-size:14.5px; line-height:1.7; margin-top:12px; white-space:pre-wrap;
+}
+.tpl-output .blank{color:var(--amber); font-weight:600;}
+.copybtn{
+  margin-top:10px; background:var(--teal); color:#fff; border:none; border-radius:6px;
+  padding:8px 16px; font-size:13.5px; font-weight:600; cursor:pointer;
+}
+.copybtn:active{transform:translateY(1px);}
+.copied{color:var(--teal-deep); font-size:13px; margin-left:10px;}
+
+/* quiz */
+.quiz-q{margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid var(--line-soft);}
+.quiz-q:last-child{border-bottom:none;}
+.quiz-q .qtext{font-weight:600; margin-bottom:10px;}
+.quiz-opt{display:block; width:100%; text-align:left; background:var(--paper-raised); border:1px solid var(--line);
+  border-radius:6px; padding:9px 12px; margin-bottom:7px; cursor:pointer; font-size:14px; color:var(--ink);}
+.quiz-opt:hover{border-color:var(--teal);}
+.quiz-opt.correct{background:rgba(31,122,92,.14); border-color:var(--teal); font-weight:600;}
+.quiz-opt.wrong{background:rgba(168,66,90,.14); border-color:var(--rose);}
+.quiz-opt[disabled]{cursor:default;}
+.quiz-explain{font-size:13.5px; color:var(--ink-soft); margin-top:6px; display:none;}
+.quiz-explain.show{display:block;}
+.quiz-score{font-family:'Source Serif 4',serif; font-size:20px; margin-top:16px; display:none;}
+.quiz-reset{margin-top:12px; background:none; border:1px solid var(--line); border-radius:6px; padding:7px 14px; cursor:pointer; font-size:13px; display:none;}
+
+.checklist{list-style:none; margin:0; padding:0;}
+.checklist li{display:flex; gap:10px; align-items:flex-start; padding:7px 0; border-bottom:1px solid var(--line-soft);}
+.checklist li:last-child{border-bottom:none;}
+.checklist input{margin-top:3px;}
+.checklist span{font-size:14px;}
+
+footer.note{margin-top:40px; padding-top:16px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-soft);}
+
+/* mobile */
+.menu-toggle{display:none;}
+@media(max-width:880px){
+  .shell{flex-direction:column;}
+  .side{position:sticky; top:0; width:100%; height:auto; max-height:none; border-right:none; border-bottom:1px solid var(--line); padding:0;}
+  .side-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:none;}
+  .side nav{display:none; padding-bottom:10px;}
+  .side.open nav{display:flex;}
+  .menu-toggle{display:block; all:unset; cursor:pointer; font-size:13px; color:var(--teal-deep); font-weight:600; border:1px solid var(--line); padding:6px 12px; border-radius:6px;}
+  .main{padding:24px 18px 70px;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side" id="side">
+    <div class="side-head">
+      <div>
+        <div class="eyebrow">Análise das Demonstrações Financeiras</div>
+        <h1>Guia de estudo &amp; prática</h1>
+      </div>
+      <button class="menu-toggle" id="menuToggle">Menu</button>
+    </div>
+    <nav id="nav"></nav>
+  </aside>
+
+  <main class="main">
+
+    <section class="panel" data-panel="fundamentos">
+      <div class="kicker">Módulo 1 · Fundamentos</div>
+      <h2>Equação patrimonial</h2>
+      <p class="lede">A base de tudo o que vem depois: de onde veio o dinheiro (Passivo + PL) e onde ele está aplicado agora (Ativo).</p>
+
+      <div class="formula-box">Ativo = Passivo + Patrimônio Líquido</div>
+
+      <div class="grid3">
+        <div class="card accent-teal"><h3>Ativo</h3><p>Bens e direitos: tudo que a empresa possui ou tem a receber.</p></div>
+        <div class="card accent-amber"><h3>Passivo</h3><p>Obrigações com terceiros: o que a empresa deve pagar a fornecedores, bancos, etc.</p></div>
+        <div class="card accent-rose"><h3>Patrimônio Líquido</h3><p>Capital próprio: o que pertence aos sócios.</p></div>
+      </div>
+
+      <h3 style="margin-top:28px;">Treino: classifique as contas</h3>
+      <p class="lede" style="margin-bottom:10px;">Clique numa conta e depois no grupo correto.</p>
+      <div class="acct-pool" id="acctPool"></div>
+      <div class="dropzones" id="acctZones"></div>
+      <div class="classify-status" id="classifyStatus">Selecione uma conta para começar.</div>
+    </section>
+
+    <section class="panel" data-panel="bp">
+      <div class="kicker">Módulo 2 · Balanço Patrimonial</div>
+      <h2>Estrutura e hierarquia</h2>
+      <p class="lede">O Balanço separa Ativo e Passivo por <strong>prazo</strong>: Circulante (até 1 ano) e Não Circulante (mais de 1 ano). Clique nos grupos em negrito para abrir as contas — repare como a soma das contas-filhas sempre fecha com o total do grupo.</p>
+      <div class="scrollx"><table class="data" id="bpTable"></table></div>
+      <div class="card accent-amber" style="margin-top:16px;">
+        <h3>Erro clássico de AV%</h3>
+        <p>Nunca some o percentual de um grupo (ex: Circulante 49,73%) junto com as contas que já estão dentro dele — é contar a mesma coisa duas vezes. Some só um nível de cada vez.</p>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="dre">
+      <div class="kicker">Módulo 3 · DRE</div>
+      <h2>Demonstração do Resultado — passo a passo</h2>
+      <p class="lede">A DRE é um "filme": mostra o que aconteceu no ano até chegar no lucro (ou prejuízo) líquido. Escolha um ano e revele os subtotais um a um.</p>
+      <div class="yearbtns" id="dreYearBtns"></div>
+      <div class="scrollx"><table class="data" id="dreTable" style="margin-top:14px;"></table></div>
+    </section>
+
+    <section class="panel" data-panel="avah">
+      <div class="kicker">Módulo 4 · AV e AH</div>
+      <h2>Análise Vertical &amp; Horizontal</h2>
+      <div class="grid2">
+        <div class="card accent-teal">
+          <h3>Análise Vertical (AV)</h3>
+          <p>"Qual o peso dessa conta no total?"</p>
+          <div class="formula-box" style="font-size:13px;">AV% = conta ÷ base × 100</div>
+          <p style="font-size:13px;">Base no BP = Ativo Total · Base na DRE = Receita Líquida</p>
+        </div>
+        <div class="card accent-rose">
+          <h3>Análise Horizontal (AH)</h3>
+          <p>"O que mudou desde o ano-base?"</p>
+          <div class="formula-box" style="font-size:13px;">AH% = ano atual ÷ ano-base × 100</div>
+          <p style="font-size:13px;">Atenção: a base é sempre o <strong>primeiro ano da série (2022)</strong>, nunca o ano anterior.</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top:22px;">Calculadora AV / AH</h3>
+      <div class="calc-row">
+        <label>Conta
+          <select id="avahAccount"></select>
+        </label>
+        <label>Ano
+          <select id="avahYear"><option value="2022">2022</option><option value="2023">2023</option><option value="2024">2024</option></select>
+        </label>
+      </div>
+      <div class="result-box" id="avahResult"></div>
+
+      <h3 style="margin-top:22px;">Calculadora de variação real 2023→2024</h3>
+      <p class="lede" style="margin-bottom:8px;">Como o AH% da tabela sempre compara com 2022, use isto para achar a variação de um ano para o imediatamente anterior — o que o relatório pede.</p>
+      <div class="calc-row">
+        <label>Conta
+          <select id="ahStepAccount"></select>
+        </label>
+        <label>Período
+          <div class="yearbtns" id="ahStepPeriod">
+            <button data-p="22-23" class="sel">2022→2023</button>
+            <button data-p="23-24">2023→2024</button>
+          </div>
+        </label>
+      </div>
+      <div class="result-box" id="ahStepResult"></div>
+    </section>
+
+    <section class="panel" data-panel="liquidez">
+      <div class="kicker">Módulo 5 · Índices de Liquidez</div>
+      <h2>"A empresa consegue pagar suas dívidas?"</h2>
+      <div class="grid2" id="liqFormulas"></div>
+      <h3 style="margin-top:20px;">Calculadora</h3>
+      <div class="calc-row">
+        <label>Índice
+          <select id="liqIndex">
+            <option value="LI">Liquidez Imediata</option>
+            <option value="LC">Liquidez Corrente</option>
+            <option value="LS">Liquidez Seca</option>
+            <option value="LG">Liquidez Geral</option>
+          </select>
+        </label>
+        <label>Comparar
+          <div class="yearbtns" id="liqPeriod">
+            <button data-p="22-23" class="sel">2022→2023</button>
+            <button data-p="23-24">2023→2024</button>
+          </div>
+        </label>
+      </div>
+      <div class="result-box" id="liqResult"></div>
+    </section>
+
+    <section class="panel" data-panel="estrutura">
+      <div class="kicker">Módulo 6 · Estrutura de Capitais</div>
+      <h2>"Como a empresa financia suas atividades?"</h2>
+      <div class="grid3" id="estFormulas"></div>
+      <h3 style="margin-top:20px;">Calculadora</h3>
+      <div class="calc-row">
+        <label>Índice
+          <select id="estIndex">
+            <option value="PCT">Participação de Capital de Terceiros</option>
+            <option value="CE">Composição do Endividamento</option>
+            <option value="IPL">Imobilização do PL</option>
+          </select>
+        </label>
+        <label>Comparar
+          <div class="yearbtns" id="estPeriod">
+            <button data-p="22-23" class="sel">2022→2023</button>
+            <button data-p="23-24">2023→2024</button>
+          </div>
+        </label>
+      </div>
+      <div class="result-box" id="estResult"></div>
+    </section>
+
+    <section class="panel" data-panel="rentabilidade">
+      <div class="kicker">Módulo 7 · Rentabilidade</div>
+      <h2>"A empresa está gerando retorno?"</h2>
+      <div class="grid2" id="rentFormulas"></div>
+      <div class="card accent-teal" style="margin-top:8px;">
+        <h3>Conexão DuPont (complemento — não estava nos slides)</h3>
+        <div class="formula-box" style="font-size:13px;">ROE ≈ Margem Líquida × Giro do Ativo × Alavancagem</div>
+        <p>Se o Giro do Ativo cai porque o Ativo cresce mais rápido que a Receita, isso puxa o ROE para baixo mesmo com margem estável.</p>
+      </div>
+      <h3 style="margin-top:20px;">Calculadora</h3>
+      <div class="calc-row">
+        <label>Índice
+          <select id="rentIndex">
+            <option value="ROI">ROI / TRI (ROA)</option>
+            <option value="ROE">ROE</option>
+            <option value="ML">Margem Líquida</option>
+            <option value="GA">Giro do Ativo</option>
+          </select>
+        </label>
+        <label>Comparar
+          <div class="yearbtns" id="rentPeriod">
+            <button data-p="22-23" class="sel">2022→2023</button>
+            <button data-p="23-24">2023→2024</button>
+          </div>
+        </label>
+      </div>
+      <div class="result-box" id="rentResult"></div>
+    </section>
+
+    <section class="panel" data-panel="templates">
+      <div class="kicker">Módulo 8 · Modelos de texto</div>
+      <h2>Gerador de parágrafos para o relatório</h2>
+      <p class="lede">Estrutura oficial dos slides: Resultado → Comparação → Significado → Causa → Efeito. Escolha o bloco e o período — o texto é montado com os dados reais da empresa. Ajuste as palavras de causa/efeito com sua própria interpretação antes de colar no relatório.</p>
+
+      <div class="calc-row">
+        <label>Bloco
+          <select id="tplBlock">
+            <option value="LC">Liquidez Corrente</option>
+            <option value="LS">Liquidez Seca</option>
+            <option value="LI">Liquidez Imediata</option>
+            <option value="LG">Liquidez Geral</option>
+            <option value="PCT">Participação de Capital de Terceiros</option>
+            <option value="CE">Composição do Endividamento</option>
+            <option value="IPL">Imobilização do PL</option>
+            <option value="ML">Margem Líquida</option>
+            <option value="ROI">ROI / TRI</option>
+            <option value="ROE">ROE</option>
+            <option value="GA">Giro do Ativo</option>
+          </select>
+        </label>
+        <label>Período
+          <div class="yearbtns" id="tplPeriod">
+            <button data-p="22-23" class="sel">2022→2023</button>
+            <button data-p="23-24">2023→2024</button>
+          </div>
+        </label>
+      </div>
+      <div class="tpl-output" id="tplOutput"></div>
+      <button class="copybtn" id="tplCopy">Copiar texto</button><span class="copied" id="tplCopiedMsg"></span>
+
+      <h3 style="margin-top:30px;">Checklist do relatório</h3>
+      <ul class="checklist" id="reportChecklist"></ul>
+    </section>
+
+    <section class="panel" data-panel="pratique">
+      <div class="kicker">Módulo · Prática com números aleatórios</div>
+      <h2>Monte, calcule e confira</h2>
+      <p class="lede">Cada clique gera uma empresa fictícia diferente (Balanço + DRE, dois anos). Preencha as células de AV%, AH% e todos os índices e depois clique em "Verificar" para conferir. Tolerância de arredondamento: 0,5 p.p. em percentuais e 0,03 em índices expressos como número puro (LC, LS, LI, LG).</p>
+      <button id="pratNewBtn" class="copybtn">🎲 Gerar novo desafio</button>
+
+      <h3 style="margin-top:22px;">Balanço Patrimonial</h3>
+      <div class="scrollx"><table class="data" id="pratBPTable"></table></div>
+
+      <h3 style="margin-top:22px;">DRE</h3>
+      <div class="scrollx"><table class="data" id="pratDRETable"></table></div>
+
+      <h3 style="margin-top:22px;">Índices</h3>
+      <div class="scrollx"><table class="data" id="pratIdxTable"></table></div>
+
+      <div class="calc-row" style="margin-top:16px;">
+        <button id="pratCheckBtn" class="copybtn">✓ Verificar respostas</button>
+        <span id="pratScoreMsg" style="font-size:14.5px; font-weight:600;"></span>
+      </div>
+      <p class="lede" style="margin-top:10px; font-size:12.5px;">Campos com borda verde estão corretos; com borda vermelha, o valor certo aparece ao lado. Totais (Total Ativo / Total Passivo) são dados, não precisam ser calculados — use-os como base do AV%.</p>
+    </section>
+
+    <section class="panel" data-panel="resumo">
+      <div class="kicker">Módulo 9 · Resumão</div>
+      <h2>Todas as fórmulas em uma página</h2>
+      <div class="grid2" id="resumoGrid"></div>
+    </section>
+
+    <section class="panel" data-panel="simulado">
+      <div class="kicker">Módulo 10 · Simulado</div>
+      <h2>Teste seus conceitos</h2>
+      <p class="lede">10 perguntas cobrindo tudo que vimos hoje. Isto é revisão conceitual — não substitui a elaboração do relatório do Praticar 6, que é dissertativo.</p>
+      <div id="quizWrap"></div>
+      <div class="quiz-score" id="quizScore"></div>
+      <button class="quiz-reset" id="quizReset">Refazer simulado</button>
+    </section>
+
+    <footer class="note">Material de apoio construído a partir dos slides da Aula 7 (14/09/2026) e dos dados do Praticar 6. Trechos marcados como complemento (ex: fórmula DuPont) não vêm dos slides — são conhecimento geral de contabilidade adicionado para reforçar o entendimento.</footer>
+  </main>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const BP = {
+  ativo: [
+    {group:'Circulante', vals:{2022:260162.10,2023:323993.70,2024:346015.59}, av:{2022:49.73,2023:59.40,2024:49.73}, ah:{2022:100,2023:124.54,2024:132.99}, children:[
+      {name:'Disponibilidades', vals:{2022:128441.50,2023:184184.96,2024:170827.20}, av:{2022:24.55,2023:33.77,2024:24.55}, ah:{2022:100,2023:143.40,2024:133}},
+      {name:'Clientes', vals:{2022:82814.60,2023:114139.08,2024:110143.42}, av:{2022:15.83,2023:20.93,2024:15.83}, ah:{2022:100,2023:137.82,2024:133}},
+      {name:'Saques descontados', vals:{2022:-17158.90,2023:-52601.88,2024:-22821.34}, av:{2022:-3.28,2023:-9.64,2024:-3.28}, ah:{2022:100,2023:306.56,2024:133}},
+      {name:'Outros créditos', vals:{2022:10462.10,2023:13515.84,2024:13914.59}, av:{2022:2.00,2023:2.48,2024:2.00}, ah:{2022:100,2023:129.19,2024:133}},
+      {name:'Estoques', vals:{2022:55602.80,2023:64757.70,2024:73951.72}, av:{2022:10.63,2023:11.87,2024:10.63}, ah:{2022:100,2023:116.46,2024:133}},
+    ]},
+    {group:'Realizável a Longo Prazo', vals:{2022:46671.90,2023:22917.42,2024:62073.63}, av:{2022:8.92,2023:4.20,2024:8.92}, ah:{2022:100,2023:49.10,2024:133}, children:[
+      {name:'Créditos com empresas relacionadas', vals:{2022:17316.20,2023:5209.80,2024:23030.55}, av:{2022:3.31,2023:0.96,2024:3.31}, ah:{2022:100,2023:30.09,2024:133}},
+      {name:'Depósitos judiciais', vals:{2022:29355.70,2023:17707.62,2024:39043.08}, av:{2022:5.61,2023:3.25,2024:5.61}, ah:{2022:100,2023:60.32,2024:133}},
+    ]},
+    {group:'Permanente', vals:{2022:216265.50,2023:198536.70,2024:287633.12}, av:{2022:41.34,2023:36.40,2024:41.34}, ah:{2022:100,2023:91.80,2024:133}, children:[
+      {name:'Investimento', vals:{2022:1955.80,2023:1524.00,2024:2601.21}, av:{2022:0.37,2023:0.28,2024:0.37}, ah:{2022:100,2023:77.92,2024:133}},
+      {name:'Imobilizado Líquido', vals:{2022:200000.00,2023:100000.00,2024:266000.00}, av:{2022:38.23,2023:18.33,2024:38.23}, ah:{2022:100,2023:50.00,2024:133}},
+      {name:'Intangível', vals:{2022:14309.70,2023:97012.70,2024:19031.90}, av:{2022:2.74,2023:17.79,2024:2.73}, ah:{2022:100,2023:677.95,2024:133}},
+    ]},
+  ],
+  total_ativo: {2022:523099.50,2023:545447.82,2024:695722.34},
+  passivo: [
+    {group:'Circulante', vals:{2022:146250.50,2023:159334.38,2024:194513.17}, av:{2022:27.96,2023:29.21,2024:27.96}, ah:{2022:100,2023:108.95,2024:133}, children:[
+      {name:'Fornecedores', vals:{2022:38649.60,2023:27240.30,2024:51403.97}, av:{2022:7.39,2023:4.99,2024:7.39}, ah:{2022:100,2023:70.48,2024:133}},
+      {name:'Tributos a pagar', vals:{2022:52133.40,2023:46052.58,2024:69337.42}, av:{2022:9.97,2023:8.44,2024:9.97}, ah:{2022:100,2023:88.34,2024:133}},
+      {name:'Dividendos a pagar', vals:{2022:32343.30,2023:39815.64,2024:43016.59}, av:{2022:6.18,2023:7.30,2024:6.18}, ah:{2022:100,2023:123.10,2024:133}},
+      {name:'Instituições financeiras', vals:{2022:23124.20,2023:46225.86,2024:30755.19}, av:{2022:4.42,2023:8.47,2024:4.42}, ah:{2022:100,2023:199.90,2024:133}},
+    ]},
+    {group:'Exigível a Longo Prazo', vals:{2022:84627.40,2023:81120.12,2024:112554.44}, av:{2022:16.18,2023:14.87,2024:16.18}, ah:{2022:100,2023:95.86,2024:133}, children:[
+      {name:'Instituições financeiras', vals:{2022:84627.40,2023:81120.12,2024:112554.44}, av:{2022:16.18,2023:14.87,2024:16.18}, ah:{2022:100,2023:95.86,2024:133}},
+    ]},
+    {group:'Patrimônio Líquido', vals:{2022:292221.60,2023:304993.32,2024:388654.73}, av:{2022:55.86,2023:55.92,2024:55.86}, ah:{2022:100,2023:104.37,2024:133}, children:[
+      {name:'Capital social', vals:{2022:290337.30,2023:300895.02,2024:386148.61}, av:{2022:55.50,2023:55.16,2024:55.50}, ah:{2022:100,2023:103.64,2024:133}},
+      {name:'Reservas de capital', vals:{2022:2467.30,2023:4679.70,2024:3281.51}, av:{2022:0.47,2023:0.86,2024:0.47}, ah:{2022:100,2023:189.67,2024:133}},
+      {name:'Prejuízos acumulados', vals:{2022:-583.00,2023:-581.40,2024:-775.39}, av:{2022:-0.11,2023:-0.11,2024:-0.11}, ah:{2022:100,2023:99.73,2024:133}},
+    ]},
+  ],
+  total_passivo: {2022:523099.50,2023:545447.82,2024:695722.34}
+};
+
+const DRE = [
+  {name:'Receita Operacional Bruta', vals:{2022:1069120.80,2023:993221.16,2024:1089055.00}},
+  {name:'(–) Impostos sobre vendas', vals:{2022:-283299.50,2023:-250476.24,2024:-274645.00}},
+  {name:'= Receita Operacional Líquida', vals:{2022:785821.30,2023:742744.92,2024:814410.00}, subtotal:true},
+  {name:'(–) Custo das vendas', vals:{2022:-596983.20,2023:-598331.28,2024:-656065.10}},
+  {name:'= Lucro Bruto', vals:{2022:188838.10,2023:144413.64,2024:158345.00}, subtotal:true},
+  {name:'(–) Despesas de vendas', vals:{2022:-88865.70,2023:-81690.12,2024:-89572.50}},
+  {name:'(–) Despesas administrativas', vals:{2022:-39789.20,2023:-50781.30,2024:-55681.25}},
+  {name:'(+) Receitas financeiras', vals:{2022:0,2023:31699.20,2024:34757.50}},
+  {name:'= Lucro Líquido', vals:{2022:60183.20,2023:43641.42,2024:47848.75}, subtotal:true},
+];
+
+const LIQ = {
+  LI:{label:'Liquidez Imediata', formula:'Disponibilidades ÷ PC', vals:{2022:0.88,2023:1.16,2024:0.88}, desc:'Paga as dívidas de curto prazo só com o que já é dinheiro.'},
+  LC:{label:'Liquidez Corrente', formula:'AC ÷ PC', vals:{2022:1.78,2023:2.03,2024:1.78}, desc:'Paga as dívidas de curto prazo com todo o Ativo Circulante.'},
+  LS:{label:'Liquidez Seca', formula:'(AC – Estoques) ÷ PC', vals:{2022:1.40,2023:1.63,2024:1.40}, desc:'Como a LC, mas sem contar com a venda do estoque.'},
+  LG:{label:'Liquidez Geral', formula:'(AC + ARLP) ÷ (PC + PNC)', vals:{2022:1.33,2023:1.44,2024:1.33}, desc:'Visão de curto e longo prazo somados.'},
+};
+
+const EST = {
+  PCT:{label:'Participação de Capital de Terceiros', formula:'Capital de Terceiros ÷ PL × 100', vals:{2022:79.01,2023:78.84,2024:79.01}, desc:'Quanto de dívida existe para cada R$1 de capital próprio.'},
+  CE:{label:'Composição do Endividamento', formula:'PC ÷ Capital de Terceiros × 100', vals:{2022:63.34,2023:66.26,2024:63.34}, desc:'Que fatia da dívida total vence no curto prazo.'},
+  IPL:{label:'Imobilização do PL', formula:'Ativo Permanente ÷ PL × 100', vals:{2022:74.01,2023:65.10,2024:74.01}, desc:'Quanto do capital próprio está aplicado em bens permanentes.'},
+};
+const ENDGER = {label:'Endividamento Geral', formula:'Capital de Terceiros ÷ Ativo Total × 100', vals:{2022:44.14,2023:44.08,2024:44.14}, desc:'Complemento — quanto do Ativo total é financiado por terceiros.'};
+
+const RENT = {
+  ML:{label:'Margem Líquida', formula:'Lucro Líquido ÷ Receita Líquida × 100', vals:{2022:5.63,2023:4.39,2024:4.39}, desc:'Quanto de cada R$1 vendido vira lucro.'},
+  ROI:{label:'ROI / TRI (ROA)', formula:'Lucro Líquido ÷ Ativo Total × 100', vals:{2022:11.50,2023:8.17,2024:7.71}, desc:'Retorno gerado pelos ativos da empresa.'},
+  ROE:{label:'ROE', formula:'Lucro Líquido ÷ PL × 100', vals:{2022:20.59,2023:14.30,2024:13.80}, desc:'Retorno que sobra para os sócios.'},
+  GA:{label:'Giro do Ativo', formula:'Receita Líquida ÷ Ativo Total', vals:{2022:204.38,2023:182.09,2024:156.54}, desc:'Quantas vezes o Ativo "girou" em vendas no ano (complemento).'},
+};
+
+const ACCOUNTS_FLAT = (()=>{
+  const list=[];
+  BP.ativo.forEach(g=>g.children.forEach(c=>list.push({...c,side:'ativo'})));
+  BP.passivo.forEach(g=>g.children.forEach(c=>list.push({...c,side:'passivo'})));
+  return list;
+})();
+
+function fmt(n){
+  if(n===undefined||n===null||isNaN(n)) return '—';
+  const neg = n<0;
+  const s = Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return (neg?'(':'')+s+(neg?')':'');
+}
+function fmtPct(n,dec=2){ return n.toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec})+'%'; }
+
+/* ================= NAV ================= */
+const PANELS = [
+  {id:'fundamentos', label:'Fundamentos'},
+  {id:'bp', label:'Balanço Patrimonial'},
+  {id:'dre', label:'DRE'},
+  {id:'avah', label:'Análise Vertical / Horizontal'},
+  {id:'liquidez', label:'Índices de Liquidez'},
+  {id:'estrutura', label:'Estrutura de Capitais'},
+  {id:'rentabilidade', label:'Rentabilidade'},
+  {id:'templates', label:'Modelos de texto'},
+  {id:'pratique', label:'Pratique com números aleatórios'},
+  {id:'resumo', label:'Resumão de fórmulas'},
+  {id:'simulado', label:'Simulado'},
+];
+const nav = document.getElementById('nav');
+PANELS.forEach((p,i)=>{
+  const b=document.createElement('button');
+  b.className='navitem'; b.dataset.panel=p.id;
+  b.innerHTML=`<span class="idx">${String(i+1).padStart(2,'0')}</span><span>${p.label}</span>`;
+  b.onclick=()=>showPanel(p.id);
+  nav.appendChild(b);
+});
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active', el.dataset.panel===id));
+  document.querySelectorAll('.navitem').forEach(el=>el.classList.toggle('active', el.dataset.panel===id));
+  document.getElementById('side').classList.remove('open');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.getElementById('menuToggle').onclick=()=>document.getElementById('side').classList.toggle('open');
+showPanel('fundamentos');
+
+/* ================= MODULE 1: classification game ================= */
+const CLASSIFY_ITEMS = [
+  // Ativo Circulante
+  {name:'Caixa', group:'AC'}, {name:'Bancos conta movimento', group:'AC'},
+  {name:'Aplicações de liquidez imediata', group:'AC'}, {name:'Clientes', group:'AC'},
+  {name:'Estoques', group:'AC'}, {name:'Outros créditos', group:'AC'},
+  {name:'Saques (duplicatas) descontados', group:'AC'},
+  // Ativo Não Circulante
+  {name:'Depósitos judiciais', group:'ANC'}, {name:'Créditos com empresas relacionadas', group:'ANC'},
+  {name:'Investimentos', group:'ANC'}, {name:'Máquinas e equipamentos', group:'ANC'},
+  {name:'Veículos', group:'ANC'}, {name:'Depreciação acumulada', group:'ANC'}, {name:'Intangível (marcas/software)', group:'ANC'},
+  // Passivo Circulante
+  {name:'Fornecedores', group:'PC'}, {name:'Salários a pagar', group:'PC'},
+  {name:'Tributos a pagar', group:'PC'}, {name:'Dividendos a pagar', group:'PC'},
+  {name:'Empréstimo bancário (vence em 8 meses)', group:'PC'},
+  // Passivo Não Circulante
+  {name:'Financiamento (vence em 3 anos)', group:'PNC'}, {name:'Empréstimo de longo prazo', group:'PNC'},
+  // Patrimônio Líquido
+  {name:'Capital social', group:'PL'}, {name:'Reservas de capital', group:'PL'},
+  {name:'Reservas de lucros', group:'PL'}, {name:'Prejuízos acumulados', group:'PL'},
+];
+const ZONES = [
+  {id:'AC', label:'Ativo Circulante'}, {id:'ANC', label:'Ativo Não Circulante'},
+  {id:'PC', label:'Passivo Circulante'}, {id:'PNC', label:'Passivo Não Circulante'},
+  {id:'PL', label:'Patrimônio Líquido'},
+];
+let selectedChip=null, correctCount=0;
+const pool=document.getElementById('acctPool'), zonesEl=document.getElementById('acctZones'), statusEl=document.getElementById('classifyStatus');
+CLASSIFY_ITEMS.sort(()=>Math.random()-0.5).forEach((item,i)=>{
+  const b=document.createElement('button'); b.className='chip'; b.textContent=item.name; b.dataset.i=i;
+  b.onclick=()=>{ if(b.classList.contains('done'))return; selectedChip=i; statusEl.textContent=`"${item.name}" selecionada — agora clique no grupo correto.`; };
+  pool.appendChild(b);
+});
+ZONES.forEach(z=>{
+  const dz=document.createElement('div'); dz.className='dz';
+  dz.innerHTML=`<h4>${z.label}</h4>`;
+  dz.onclick=()=>{
+    if(selectedChip===null){ statusEl.textContent='Selecione uma conta primeiro.'; return; }
+    const item=CLASSIFY_ITEMS[selectedChip];
+    const chipEl=pool.querySelector(`[data-i="${selectedChip}"]`);
+    if(item.group===z.id){
+      dz.classList.add('flash-ok'); setTimeout(()=>dz.classList.remove('flash-ok'),400);
+      const tag=document.createElement('span'); tag.className='placed'; tag.textContent=item.name;
+      dz.appendChild(tag);
+      chipEl.classList.add('done');
+      correctCount++;
+      statusEl.textContent = correctCount===CLASSIFY_ITEMS.length ? '🎉 Todas classificadas corretamente!' : 'Certo! Selecione a próxima.';
+    } else {
+      dz.classList.add('flash-bad'); setTimeout(()=>dz.classList.remove('flash-bad'),400);
+      statusEl.textContent=`Não é bem isso — pense no prazo/natureza de "${item.name}" e tente outro grupo.`;
+    }
+    selectedChip=null;
+  };
+  zonesEl.appendChild(dz);
+});
+
+/* ================= MODULE 2: BP table ================= */
+function renderBPTable(){
+  const t=document.getElementById('bpTable');
+  let html = `<thead><tr><th>Conta</th><th>2022</th><th>AV%</th><th>2023</th><th>AV%</th><th>2024</th><th>AV%</th></tr></thead><tbody>`;
+  function block(rows, totalLabel, totalVals){
+    rows.forEach((g,gi)=>{
+      html += `<tr class="group" data-g="ativo${totalLabel}${gi}"><td><span class="caret">▸</span>${g.group}</td>
+        <td>${fmt(g.vals[2022])}</td><td>${fmtPct(g.av[2022])}</td>
+        <td>${fmt(g.vals[2023])}</td><td>${fmtPct(g.av[2023])}</td>
+        <td>${fmt(g.vals[2024])}</td><td>${fmtPct(g.av[2024])}</td></tr>`;
+      g.children.forEach(c=>{
+        html += `<tr class="child" data-parent="ativo${totalLabel}${gi}"><td>${c.name}</td>
+          <td>${fmt(c.vals[2022])}</td><td>${fmtPct(c.av[2022])}</td>
+          <td>${fmt(c.vals[2023])}</td><td>${fmtPct(c.av[2023])}</td>
+          <td>${fmt(c.vals[2024])}</td><td>${fmtPct(c.av[2024])}</td></tr>`;
+      });
+    });
+    html += `<tr class="group" style="background:var(--line-soft);"><td><strong>${totalLabel}</strong></td>
+      <td><strong>${fmt(totalVals[2022])}</strong></td><td><strong>100,00%</strong></td>
+      <td><strong>${fmt(totalVals[2023])}</strong></td><td><strong>100,00%</strong></td>
+      <td><strong>${fmt(totalVals[2024])}</strong></td><td><strong>100,00%</strong></td></tr>`;
+  }
+  html += `<tr><td colspan="7" style="padding-top:14px; font-weight:700; border-bottom:2px solid var(--ink); background:transparent;">ATIVO</td></tr>`;
+  block(BP.ativo, 'Total Ativo', BP.total_ativo);
+  html += `<tr><td colspan="7" style="padding-top:14px; font-weight:700; border-bottom:2px solid var(--ink); background:transparent;">PASSIVO</td></tr>`;
+  block(BP.passivo, 'Total Passivo', BP.total_passivo);
+  html += '</tbody>';
+  t.innerHTML = html;
+  t.querySelectorAll('tr.group[data-g]').forEach(row=>{
+    row.querySelector('td').addEventListener('click', ()=>{
+      const key=row.dataset.g;
+      row.classList.toggle('open');
+      t.querySelectorAll(`tr.child[data-parent="${key}"]`).forEach(c=>c.classList.toggle('show'));
+    });
+  });
+}
+renderBPTable();
+
+/* ================= MODULE 3: DRE ================= */
+let dreYear=2022;
+function renderDREYearBtns(){
+  const el=document.getElementById('dreYearBtns'); el.innerHTML='';
+  [2022,2023,2024].forEach(y=>{
+    const b=document.createElement('button'); b.textContent=y; if(y===dreYear)b.classList.add('sel');
+    b.onclick=()=>{dreYear=y; renderDREYearBtns(); renderDRETable();};
+    el.appendChild(b);
+  });
+}
+function renderDRETable(){
+  const t=document.getElementById('dreTable');
+  let html=`<thead><tr><th>Conta</th><th>${dreYear}</th></tr></thead><tbody>`;
+  DRE.forEach(row=>{
+    html+=`<tr class="${row.subtotal?'group':''}"><td>${row.name}</td><td>${fmt(row.vals[dreYear])}</td></tr>`;
+  });
+  html+='</tbody>';
+  t.innerHTML=html;
+}
+renderDREYearBtns(); renderDRETable();
+
+/* ================= MODULE 4: AV/AH calculators ================= */
+const avahSelect = document.getElementById('avahAccount');
+ACCOUNTS_FLAT.forEach((a,i)=>{
+  const o=document.createElement('option'); o.value=i; o.textContent=a.name; avahSelect.appendChild(o);
+});
+function renderAVAH(){
+  const acc = ACCOUNTS_FLAT[avahSelect.value];
+  const y = document.getElementById('avahYear').value;
+  const base = acc.side==='ativo'?BP.total_ativo[y]:BP.total_passivo[y];
+  const el = document.getElementById('avahResult');
+  el.innerHTML = `
+    <div class="formula-box" style="font-size:13px;">AV% = ${fmt(acc.vals[y])} ÷ ${fmt(base)} × 100</div>
+    <div class="big">${fmtPct(acc.av[y])}</div>
+    <p style="margin:4px 0 0; font-size:13px; color:var(--ink-soft);">AH% (vs. 2022) neste ano: <strong>${fmtPct(acc.ah[y])}</strong></p>`;
+}
+avahSelect.onchange=renderAVAH; document.getElementById('avahYear').onchange=renderAVAH;
+avahSelect.value=0; renderAVAH();
+
+const ahStepSelect = document.getElementById('ahStepAccount');
+ACCOUNTS_FLAT.forEach((a,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=a.name; ahStepSelect.appendChild(o); });
+let ahStepPeriod='22-23';
+document.querySelectorAll('#ahStepPeriod button').forEach(b=>b.onclick=()=>{
+  ahStepPeriod=b.dataset.p;
+  document.querySelectorAll('#ahStepPeriod button').forEach(x=>x.classList.toggle('sel',x===b));
+  renderAHStep();
+});
+function renderAHStep(){
+  const acc = ACCOUNTS_FLAT[ahStepSelect.value];
+  const [y0,y1] = ahStepPeriod==='22-23' ? [2022,2023] : [2023,2024];
+  const v0=acc.vals[y0], v1=acc.vals[y1];
+  const el=document.getElementById('ahStepResult');
+  if(v0===0){ el.innerHTML=`<p>Não é possível calcular variação percentual: o valor em ${y0} é zero.</p>`; return; }
+  const pct = ((v1-v0)/Math.abs(v0))*100;
+  el.className='result-box'+(pct<0?' negative':'');
+  el.innerHTML = `
+    <div class="formula-box" style="font-size:13px;">(${fmt(v1)} − ${fmt(v0)}) ÷ ${fmt(v0)} × 100</div>
+    <div class="big">${pct>=0?'+':''}${fmtPct(pct)}</div>
+    <p style="margin:4px 0 0; font-size:13px; color:var(--ink-soft);">${y0}: ${fmt(v0)} → ${y1}: ${fmt(v1)}</p>`;
+}
+ahStepSelect.onchange=renderAHStep; ahStepSelect.value=0; renderAHStep();
+
+/* ================= MODULE 5,6,7: index cards + calculators ================= */
+function renderFormulaCards(container, dataObj, accentCycle){
+  const el=document.getElementById(container); el.innerHTML='';
+  Object.values(dataObj).forEach((d,i)=>{
+    const div=document.createElement('div'); div.className='card accent-'+accentCycle[i%accentCycle.length];
+    div.innerHTML=`<h3>${d.label}</h3><div class="formula-box" style="font-size:12.5px;">${d.formula}</div><p style="font-size:13px;">${d.desc}</p>`;
+    el.appendChild(div);
+  });
+}
+renderFormulaCards('liqFormulas', LIQ, ['teal','amber','rose','teal']);
+renderFormulaCards('estFormulas', EST, ['teal','amber','rose']);
+renderFormulaCards('rentFormulas', RENT, ['teal','amber','rose','teal']);
+
+function wireIndexCalc(selectId, periodWrapId, resultId, dataObj, decimals=2, suffix='%'){
+  let period='22-23';
+  const sel=document.getElementById(selectId);
+  document.querySelectorAll('#'+periodWrapId+' button').forEach(b=>b.onclick=()=>{
+    period=b.dataset.p;
+    document.querySelectorAll('#'+periodWrapId+' button').forEach(x=>x.classList.toggle('sel',x===b));
+    render();
+  });
+  function render(){
+    const d=dataObj[sel.value];
+    const [y0,y1]= period==='22-23'?[2022,2023]:[2023,2024];
+    const v0=d.vals[y0], v1=d.vals[y1];
+    const diff=v1-v0;
+    const pct=(diff/Math.abs(v0))*100;
+    const el=document.getElementById(resultId);
+    el.className='result-box'+(diff<0?' negative':'');
+    el.innerHTML=`
+      <p style="font-size:13px; color:var(--ink-soft); margin:0 0 6px;">${d.label} — ${d.formula}</p>
+      <div class="big">${y0}: ${v0.toLocaleString('pt-BR',{minimumFractionDigits:decimals,maximumFractionDigits:decimals})}${suffix} → ${y1}: ${v1.toLocaleString('pt-BR',{minimumFractionDigits:decimals,maximumFractionDigits:decimals})}${suffix}</div>
+      <p style="margin:8px 0 0; font-size:14px;">Variação: <strong>${diff>=0?'+':''}${diff.toLocaleString('pt-BR',{minimumFractionDigits:decimals,maximumFractionDigits:decimals})}${suffix}</strong>
+      &nbsp;(${pct>=0?'+':''}${fmtPct(pct)} em relação a ${y0})</p>`;
+  }
+  sel.onchange=render; render();
+}
+wireIndexCalc('liqIndex','liqPeriod','liqResult', LIQ);
+wireIndexCalc('estIndex','estPeriod','estResult', EST);
+wireIndexCalc('rentIndex','rentPeriod','rentResult', RENT);
+
+/* ================= MODULE 8: text templates ================= */
+const TPL_MAP = {
+  LC:{data:LIQ.LC, kind:'liq', label:'Liquidez Corrente'},
+  LS:{data:LIQ.LS, kind:'liq', label:'Liquidez Seca'},
+  LI:{data:LIQ.LI, kind:'liq', label:'Liquidez Imediata'},
+  LG:{data:LIQ.LG, kind:'liq', label:'Liquidez Geral'},
+  PCT:{data:EST.PCT, kind:'estPct', label:'Participação de Capital de Terceiros'},
+  CE:{data:EST.CE, kind:'estPct', label:'Composição do Endividamento'},
+  IPL:{data:EST.IPL, kind:'estPct', label:'Imobilização do PL'},
+  ML:{data:RENT.ML, kind:'rentPct', label:'Margem Líquida'},
+  ROI:{data:RENT.ROI, kind:'rentPct', label:'ROI / TRI'},
+  ROE:{data:RENT.ROE, kind:'rentPct', label:'ROE'},
+  GA:{data:RENT.GA, kind:'rentPct', label:'Giro do Ativo'},
+};
+let tplPeriod='22-23';
+document.querySelectorAll('#tplPeriod button').forEach(b=>b.onclick=()=>{
+  tplPeriod=b.dataset.p;
+  document.querySelectorAll('#tplPeriod button').forEach(x=>x.classList.toggle('sel',x===b));
+  renderTemplate();
+});
+function renderTemplate(){
+  const key=document.getElementById('tplBlock').value;
+  const conf=TPL_MAP[key];
+  const d=conf.data;
+  const [y0,y1]= tplPeriod==='22-23'?[2022,2023]:[2023,2024];
+  const v0=d.vals[y0], v1=d.vals[y1];
+  const up = v1>v0;
+  const diff=Math.abs(v1-v0);
+  const pct=Math.abs((v1-v0)/Math.abs(v0))*100;
+  const isRatio = ['LC','LS','LI','LG'].includes(key);
+  const unit = isRatio ? '' : '%';
+  const vfmt = n=> isRatio? n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : fmtPct(n);
+
+  // whether "up" is favorable depends on the index
+  let favorableWhenUp = true;
+  if(key==='PCT'||key==='CE'||key==='IPL') favorableWhenUp=false; // higher = more risk generally
+  const favorable = up===favorableWhenUp;
+
+  let meaningWord, effectPhrase;
+  if(conf.kind==='liq'){
+    meaningWord = up? 'aumentou':'diminuiu';
+    effectPhrase = favorable
+      ? 'indicando maior capacidade de honrar compromissos de curto prazo e mais segurança para credores e fornecedores'
+      : 'indicando menor folga para honrar compromissos de curto prazo — ponto de atenção, ainda que sem ser necessariamente alarmante';
+  } else if(key==='PCT'){
+    meaningWord = up? 'aumentou':'diminuiu';
+    effectPhrase = up
+      ? 'mostrando que a empresa passou a depender relativamente mais de capital de terceiros em relação ao capital próprio'
+      : 'mostrando que a empresa passou a depender relativamente menos de capital de terceiros em relação ao capital próprio';
+  } else if(key==='CE'){
+    meaningWord = up? 'aumentou':'diminuiu';
+    effectPhrase = up
+      ? 'indicando maior concentração da dívida no curto prazo, o que pressiona o caixa nos próximos 12 meses'
+      : 'indicando menor concentração da dívida no curto prazo, aliviando a pressão sobre o caixa de curto prazo';
+  } else if(key==='IPL'){
+    meaningWord = up? 'aumentou':'diminuiu';
+    effectPhrase = up
+      ? 'mostrando que uma parcela maior do capital próprio passou a estar imobilizada em ativos permanentes, restando menos PL livre para outros fins'
+      : 'mostrando que uma parcela menor do capital próprio ficou imobilizada em ativos permanentes, com mais PL livre para outros fins';
+  } else { // rentabilidade
+    meaningWord = up? 'melhorou':'piorou';
+    effectPhrase = up
+      ? 'sinalizando ganho de eficiência ou de retorno no período'
+      : 'sinalizando perda de eficiência ou de retorno no período, que merece investigação de causa (ex: custos, despesas ou crescimento do ativo acima da receita)';
+  }
+
+  const text =
+`${conf.label} passou de ${vfmt(v0)}${unit} em ${y0} para ${vfmt(v1)}${unit} em ${y1}, uma variação de ${up?'+':'-'}${vfmt(diff)}${unit} (${pct.toFixed(1)}% em relação a ${y0}).
+
+Isso significa que o indicador ${meaningWord} no período, ${effectPhrase}.
+
+[CAUSA — complete com sua interpretação: qual conta específica do Balanço/DRE mais contribuiu para esse resultado?]
+
+[CONSEQUÊNCIA / RECOMENDAÇÃO — complete: o que a empresa deveria observar daqui para frente?]`;
+
+  document.getElementById('tplOutput').textContent = text;
+}
+document.getElementById('tplBlock').onchange=renderTemplate;
+renderTemplate();
+document.getElementById('tplCopy').onclick=()=>{
+  const txt=document.getElementById('tplOutput').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const m=document.getElementById('tplCopiedMsg'); m.textContent='Copiado!';
+    setTimeout(()=>m.textContent='',1800);
+  }).catch(()=>{ document.getElementById('tplCopiedMsg').textContent='Selecione e copie manualmente.'; });
+};
+
+const CHECKLIST_ITEMS = [
+  'Introdução: empresa, período (2022–2024), demonstrações usadas',
+  'Análise Patrimonial: principais variações de AV/AH no Ativo, Passivo e PL',
+  'Liquidez: os 4 índices, período 2022→2023 separado de 2023→2024',
+  'Estrutura de Capitais: PCT, Composição do Endividamento e Imobilização do PL, nos dois períodos',
+  'Rentabilidade: Margem Líquida, ROI/ROA, ROE (e Giro do Ativo se quiser aprofundar)',
+  'Análise Integrada: cruzar liquidez × endividamento × rentabilidade, não apresentar isolado',
+  'Comparação dos períodos: qual foi mais favorável, 2022→2023 ou 2023→2024, com justificativa',
+  'Conclusão: pontos fortes, pontos de atenção e riscos para 2024',
+  'Revisar: nenhum índice apresentado sem interpretação (Resultado→Comparação→Significado→Causa→Efeito)',
+];
+const cl=document.getElementById('reportChecklist');
+CHECKLIST_ITEMS.forEach((t,i)=>{
+  const li=document.createElement('li');
+  li.innerHTML=`<input type="checkbox" id="chk${i}"><span>${t}</span>`;
+  cl.appendChild(li);
+});
+
+/* ================= MODULE: PRATIQUE (random company) ================= */
+function rnd(min,max){ return Math.random()*(max-min)+min; }
+function ri(min,max){ return Math.round(rnd(min,max)); }
+
+function genYearBP(prevYear){
+  if(!prevYear){
+    const disp=ri(50000,150000), cli=ri(40000,120000), est=ri(30000,90000);
+    const arlp=ri(10000,40000), imob=ri(100000,260000);
+    const ac=disp+cli+est, anc=arlp+imob, ativoTotal=ac+anc;
+    const forn=ri(20000,60000), empCP=ri(10000,50000), pc=forn+empCP;
+    const empLP=ri(30000,90000), pnc=empLP;
+    const pl=ativoTotal-pc-pnc;
+    if(pl<=20000) return genYearBP(null);
+    return {disp,cli,est,arlp,imob,ac,anc,ativoTotal,forn,empCP,pc,empLP,pnc,pl};
+  } else {
+    const g=v=>Math.round(v*rnd(0.7,1.6));
+    const disp=g(prevYear.disp), cli=g(prevYear.cli), est=g(prevYear.est);
+    const arlp=g(prevYear.arlp), imob=g(prevYear.imob);
+    const ac=disp+cli+est, anc=arlp+imob, ativoTotal=ac+anc;
+    const forn=g(prevYear.forn), empCP=g(prevYear.empCP), pc=forn+empCP;
+    const empLP=g(prevYear.empLP), pnc=empLP;
+    const pl=ativoTotal-pc-pnc;
+    if(pl<=20000) return genYearBP(prevYear);
+    return {disp,cli,est,arlp,imob,ac,anc,ativoTotal,forn,empCP,pc,empLP,pnc,pl};
+  }
+}
+function genYearDRE(prevDRE){
+  let receitaBruta, impostosRate;
+  if(!prevDRE){ receitaBruta=ri(400000,900000); impostosRate=rnd(0.15,0.25); }
+  else { receitaBruta=Math.round(prevDRE.receitaBruta*rnd(0.85,1.3)); impostosRate=prevDRE.impostosRate; }
+  const impostos=Math.round(receitaBruta*impostosRate);
+  const receitaLiq=receitaBruta-impostos;
+  const custoRate=rnd(0.55,0.78);
+  const custo=Math.round(receitaLiq*custoRate);
+  const lucroBruto=receitaLiq-custo;
+  const despRate=rnd(0.10,0.27);
+  const despesas=Math.round(receitaLiq*despRate);
+  const lucroLiq=lucroBruto-despesas;
+  if(lucroLiq<=5000) return genYearDRE(prevDRE);
+  return {receitaBruta,impostosRate,impostos,receitaLiq,custo,lucroBruto,despesas,lucroLiq};
+}
+function genCompany(){
+  const bp1=genYearBP(null), bp2=genYearBP(bp1);
+  const dre1=genYearDRE(null), dre2=genYearDRE(dre1);
+  return {bp:{1:bp1,2:bp2}, dre:{1:dre1,2:dre2}};
+}
+let PRAT = genCompany();
+
+const PRAT_BP_ROWS = [
+  {key:'disp', label:'Disponibilidades', side:'ativo'},
+  {key:'cli', label:'Clientes', side:'ativo'},
+  {key:'est', label:'Estoques', side:'ativo'},
+  {key:'arlp', label:'Realizável a Longo Prazo', side:'ativo'},
+  {key:'imob', label:'Imobilizado', side:'ativo'},
+  {key:'ativoTotal', label:'Total Ativo', side:'ativo', total:true},
+  {key:'forn', label:'Fornecedores', side:'passivo'},
+  {key:'empCP', label:'Empréstimos de Curto Prazo', side:'passivo'},
+  {key:'empLP', label:'Empréstimos de Longo Prazo', side:'passivo'},
+  {key:'pl', label:'Patrimônio Líquido', side:'passivo'},
+];
+function pratTotalPassivo(y){ return PRAT.bp[y].pc + PRAT.bp[y].pnc + PRAT.bp[y].pl; }
+
+function pratInput(expected, tol, extraClass){
+  return `<input type="text" inputmode="decimal" class="chk-input ${extraClass||''}" data-expected="${expected}" data-tol="${tol}" style="width:74px; text-align:right; border:1px solid var(--line); border-radius:4px; padding:3px 5px; background:var(--paper-raised); color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:12.5px;">`;
+}
+
+function renderPratBP(){
+  const t=document.getElementById('pratBPTable');
+  let html=`<thead><tr><th>Conta</th><th>Ano 1</th><th>AV% Ano1</th><th>Ano 2</th><th>AV% Ano2</th><th>AH% Ano2</th></tr></thead><tbody>`;
+  PRAT_BP_ROWS.forEach(r=>{
+    const v1 = r.key==='ativoTotal'? PRAT.bp[1].ativoTotal : PRAT.bp[1][r.key];
+    const v2 = r.key==='ativoTotal'? PRAT.bp[2].ativoTotal : PRAT.bp[2][r.key];
+    const base1 = PRAT.bp[1].ativoTotal, base2 = PRAT.bp[2].ativoTotal;
+    const av1 = (v1/base1*100), av2=(v2/base2*100);
+    const ah2 = (v2/v1*100);
+    if(r.total){
+      html+=`<tr class="group"><td><strong>${r.label}</strong></td><td class="num"><strong>${fmt(v1)}</strong></td><td class="num"><strong>100,00%</strong></td>
+        <td class="num"><strong>${fmt(v2)}</strong></td><td class="num"><strong>100,00%</strong></td><td class="num"><strong>—</strong></td></tr>`;
+    } else {
+      html+=`<tr><td>${r.label}</td><td class="num">${fmt(v1)}</td><td>${pratInput(av1.toFixed(2),0.5)}</td>
+        <td class="num">${fmt(v2)}</td><td>${pratInput(av2.toFixed(2),0.5)}</td><td>${pratInput(ah2.toFixed(2),0.5)}</td></tr>`;
+    }
+  });
+  html+=`<tr class="group" style="background:var(--line-soft);"><td><strong>Total Passivo</strong></td><td class="num"><strong>${fmt(pratTotalPassivo(1))}</strong></td><td class="num"><strong>100,00%</strong></td><td class="num"><strong>${fmt(pratTotalPassivo(2))}</strong></td><td class="num"><strong>100,00%</strong></td><td class="num"><strong>—</strong></td></tr>`;
+  html+='</tbody>';
+  t.innerHTML=html;
+}
+
+const PRAT_DRE_ROWS = ['receitaLiq','custo','lucroBruto','despesas','lucroLiq'];
+const PRAT_DRE_LABELS = {receitaLiq:'Receita Operacional Líquida', custo:'(–) Custo das Vendas', lucroBruto:'Lucro Bruto', despesas:'(–) Despesas Operacionais', lucroLiq:'Lucro Líquido'};
+function renderPratDRE(){
+  const t=document.getElementById('pratDRETable');
+  let html=`<thead><tr><th>Conta</th><th>Ano 1</th><th>AV% Ano1</th><th>Ano 2</th><th>AV% Ano2</th><th>AH% Ano2</th></tr></thead><tbody>`;
+  PRAT_DRE_ROWS.forEach(k=>{
+    const v1=PRAT.dre[1][k], v2=PRAT.dre[2][k];
+    const base1=PRAT.dre[1].receitaLiq, base2=PRAT.dre[2].receitaLiq;
+    const av1=v1/base1*100, av2=v2/base2*100, ah2=v2/v1*100;
+    const isSub = k==='receitaLiq'||k==='lucroBruto'||k==='lucroLiq';
+    html+=`<tr class="${isSub?'group':''}"><td>${PRAT_DRE_LABELS[k]}</td><td class="num">${fmt(v1)}</td><td>${pratInput(av1.toFixed(2),0.5)}</td>
+      <td class="num">${fmt(v2)}</td><td>${pratInput(av2.toFixed(2),0.5)}</td><td>${pratInput(ah2.toFixed(2),0.5)}</td></tr>`;
+  });
+  html+='</tbody>';
+  t.innerHTML=html;
+}
+
+function pratComputeIndices(y){
+  const b=PRAT.bp[y], d=PRAT.dre[y];
+  const capTerceiros = b.pc + b.pnc;
+  return {
+    LC: b.ac/b.pc,
+    LS: (b.ac-b.est)/b.pc,
+    LI: b.disp/b.pc,
+    LG: (b.ac+b.arlp)/(b.pc+b.pnc),
+    PCT: capTerceiros/b.pl*100,
+    CE: b.pc/capTerceiros*100,
+    IPL: b.imob/b.pl*100,
+    ML: d.lucroLiq/d.receitaLiq*100,
+    ROI: d.lucroLiq/b.ativoTotal*100,
+    ROE: d.lucroLiq/b.pl*100,
+    GA: d.receitaLiq/b.ativoTotal*100,
+  };
+}
+const PRAT_IDX_LABELS = {LC:'Liquidez Corrente',LS:'Liquidez Seca',LI:'Liquidez Imediata',LG:'Liquidez Geral',PCT:'Part. Capital de Terceiros',CE:'Composição do Endividamento',IPL:'Imobilização do PL',ML:'Margem Líquida',ROI:'ROI / TRI',ROE:'ROE',GA:'Giro do Ativo'};
+const PRAT_IDX_ISRATIO = {LC:true,LS:true,LI:true,LG:true};
+function renderPratIdx(){
+  const t=document.getElementById('pratIdxTable');
+  const idx1=pratComputeIndices(1), idx2=pratComputeIndices(2);
+  let html=`<thead><tr><th>Índice</th><th>Ano 1</th><th>Ano 2</th></tr></thead><tbody>`;
+  Object.keys(PRAT_IDX_LABELS).forEach(k=>{
+    const isRatio=PRAT_IDX_ISRATIO[k];
+    const tol = isRatio?0.03:0.5;
+    html+=`<tr><td>${PRAT_IDX_LABELS[k]}</td><td>${pratInput(idx1[k].toFixed(isRatio?2:2),tol)}</td><td>${pratInput(idx2[k].toFixed(isRatio?2:2),tol)}</td></tr>`;
+  });
+  html+='</tbody>';
+  t.innerHTML=html;
+}
+
+function renderPratAll(){ renderPratBP(); renderPratDRE(); renderPratIdx(); document.getElementById('pratScoreMsg').textContent=''; }
+document.getElementById('pratNewBtn').onclick=()=>{ PRAT=genCompany(); renderPratAll(); };
+document.getElementById('pratCheckBtn').onclick=()=>{
+  const inputs=document.querySelectorAll('.chk-input');
+  let correct=0;
+  inputs.forEach(inp=>{
+    const exp=parseFloat(inp.dataset.expected);
+    const tol=parseFloat(inp.dataset.tol);
+    const val=parseFloat((inp.value||'').replace(',','.'));
+    const ok = !isNaN(val) && Math.abs(val-exp)<=tol;
+    inp.style.borderColor = ok? 'var(--teal)':'var(--rose)';
+    inp.style.background = ok? 'rgba(31,122,92,.10)':'rgba(168,66,90,.10)';
+    let hint = inp.parentElement.querySelector('.prat-hint');
+    if(!ok){
+      if(!hint){ hint=document.createElement('span'); hint.className='prat-hint'; hint.style.cssText='font-size:10.5px; color:var(--rose); display:block; margin-top:2px;'; inp.insertAdjacentElement('afterend', hint); }
+      hint.textContent='= '+exp;
+    } else if(hint){ hint.remove(); }
+    if(ok) correct++;
+  });
+  document.getElementById('pratScoreMsg').textContent = `${correct} de ${inputs.length} corretas.`;
+};
+renderPratAll();
+
+/* ================= MODULE 9: resumo ================= */
+const RESUMO = [
+  {t:'Equação Patrimonial', f:'Ativo = Passivo + PL'},
+  {t:'AV%', f:'conta ÷ base × 100 (base: Ativo Total no BP · Receita Líquida na DRE)'},
+  {t:'AH%', f:'ano atual ÷ ano-base × 100 (base = primeiro ano da série)'},
+  {t:'Liquidez Imediata', f:'Disponibilidades ÷ PC'},
+  {t:'Liquidez Corrente', f:'AC ÷ PC'},
+  {t:'Liquidez Seca', f:'(AC – Estoques) ÷ PC'},
+  {t:'Liquidez Geral', f:'(AC + ARLP) ÷ (PC + PNC)'},
+  {t:'Participação Cap. Terceiros', f:'Capital de Terceiros ÷ PL × 100'},
+  {t:'Composição do Endividamento', f:'PC ÷ Capital de Terceiros × 100'},
+  {t:'Imobilização do PL', f:'Ativo Permanente ÷ PL × 100'},
+  {t:'Margem Líquida', f:'Lucro Líquido ÷ Receita Líquida × 100'},
+  {t:'ROI / TRI (ROA)', f:'Lucro Líquido ÷ Ativo Total × 100'},
+  {t:'ROE', f:'Lucro Líquido ÷ PL × 100'},
+  {t:'Giro do Ativo (compl.)', f:'Receita Líquida ÷ Ativo Total'},
+];
+const rg=document.getElementById('resumoGrid');
+RESUMO.forEach(r=>{
+  const d=document.createElement('div'); d.className='card';
+  d.innerHTML=`<h3 style="font-size:14.5px;">${r.t}</h3><div class="formula-box" style="font-size:13px; white-space:normal;">${r.f}</div>`;
+  rg.appendChild(d);
+});
+
+/* ================= MODULE 10: quiz ================= */
+const QUIZ = [
+  {q:'Qual a equação patrimonial básica?', opts:['Ativo = Passivo − PL','Ativo = Passivo + PL','PL = Ativo + Passivo'], correct:1, exp:'Tudo que a empresa possui (Ativo) foi financiado por terceiros (Passivo) ou pelos sócios (PL).'},
+  {q:'Uma dívida que vence em 3 anos deve ser classificada como:', opts:['Passivo Circulante','Passivo Não Circulante (Exigível a LP)','Patrimônio Líquido'], correct:1, exp:'Mais de 1 ano de prazo = Não Circulante.'},
+  {q:'Na DRE, qual é a base usada para calcular a Análise Vertical?', opts:['Receita Operacional Bruta','Ativo Total','Receita Operacional Líquida'], correct:2, exp:'No BP a base é o Ativo Total; na DRE é a Receita Líquida.'},
+  {q:'O AH% de uma conta em 2024 sempre compara o valor de 2024 com:', opts:['O valor de 2023 (ano anterior)','O valor de 2022 (ano-base da série)','A média dos 3 anos'], correct:1, exp:'AH% usa sempre o primeiro ano da série como base fixa, não o ano imediatamente anterior.'},
+  {q:'Qual índice de liquidez é o mais "rigoroso" (menos otimista)?', opts:['Liquidez Geral','Liquidez Corrente','Liquidez Imediata'], correct:2, exp:'Liquidez Imediata considera só Disponibilidades — o cenário mais conservador.'},
+  {q:'Se a Liquidez Corrente é 1,78, isso significa que:', opts:['A empresa tem R$1,78 de Ativo Circulante para cada R$1,00 de dívida de curto prazo','A empresa deve R$1,78 para cada R$1,00 que possui','A empresa teve prejuízo de R$1,78'], correct:0, exp:'LC = AC ÷ PC — é sempre "quanto de ativo circulante existe por real de dívida de curto prazo".'},
+  {q:'Um aumento na Composição do Endividamento (CE) geralmente indica:', opts:['Menos dívida no total','Mais dívida concentrada no curto prazo','Mais capital próprio'], correct:1, exp:'CE = PC ÷ Capital de Terceiros — mostra a fatia da dívida total que vence logo.'},
+  {q:'Se o Giro do Ativo cai porque o Ativo cresceu mais que a Receita, o que costuma acontecer com o ROE?', opts:['Sobe, sempre','Não tem relação nenhuma','Tende a cair também, via fórmula DuPont'], correct:2, exp:'ROE ≈ Margem × Giro do Ativo × Alavancagem — um Giro menor puxa o ROE para baixo, mesmo com margem estável.'},
+  {q:'"Analisar" as demonstrações (segundo os slides) envolve, na ordem certa:', opts:['Interpretar → Medir → Examinar','Examinar → Medir → Interpretar','Medir → Interpretar → Examinar'], correct:1, exp:'Primeiro você examina (observa BP/DRE), depois mede (calcula índices), depois interpreta (relaciona e conclui).'},
+  {q:'Ao escrever a análise, qual é a sequência recomendada pelos slides?', opts:['Causa → Efeito → Resultado','Resultado → Comparação → Significado → Causa → Efeito','Significado → Resultado → Causa'], correct:1, exp:'É a estrutura de redação apresentada no slide "Como redigir o texto da análise".'},
+];
+const quizWrap=document.getElementById('quizWrap');
+let quizAnswered=0, quizCorrect=0;
+function buildQuiz(){
+  quizWrap.innerHTML=''; quizAnswered=0; quizCorrect=0;
+  document.getElementById('quizScore').style.display='none';
+  document.getElementById('quizReset').style.display='none';
+  QUIZ.forEach((item,qi)=>{
+    const box=document.createElement('div'); box.className='quiz-q';
+    box.innerHTML=`<div class="qtext">${qi+1}. ${item.q}</div>`;
+    item.opts.forEach((opt,oi)=>{
+      const b=document.createElement('button'); b.className='quiz-opt'; b.textContent=opt;
+      b.onclick=()=>{
+        box.querySelectorAll('.quiz-opt').forEach(x=>x.disabled=true);
+        if(oi===item.correct){ b.classList.add('correct'); quizCorrect++; }
+        else { b.classList.add('wrong'); box.querySelectorAll('.quiz-opt')[item.correct].classList.add('correct'); }
+        box.querySelector('.quiz-explain').classList.add('show');
+        quizAnswered++;
+        if(quizAnswered===QUIZ.length){
+          const sc=document.getElementById('quizScore');
+          sc.style.display='block';
+          sc.textContent=`Resultado: ${quizCorrect} de ${QUIZ.length} corretas.`;
+          document.getElementById('quizReset').style.display='inline-block';
+        }
+      };
+      box.appendChild(b);
+    });
+    const exp=document.createElement('div'); exp.className='quiz-explain'; exp.textContent=item.exp;
+    box.appendChild(exp);
+    quizWrap.appendChild(box);
+  });
+}
+document.getElementById('quizReset').onclick=buildQuiz;
+buildQuiz();
+</script>
+</body>
+</html>
