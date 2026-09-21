@@ -181,6 +181,17 @@ select, .yearbtns button{
 .checklist input{margin-top:3px;}
 .checklist span{font-size:14px;}
 
+.interp-rule{font-size:13.5px; color:var(--ink-soft); margin-bottom:14px;}
+.interp-card{background:var(--paper-raised); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:14px;}
+.interp-card h3{font-size:15.5px; margin-bottom:2px;}
+.interp-formula{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink-soft); margin-bottom:12px;}
+.interp-cols{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media(max-width:700px){.interp-cols{grid-template-columns:1fr;}}
+.interp-col{border-radius:6px; padding:10px 12px; background:var(--line-soft);}
+.interp-col .dir{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); margin-bottom:4px;}
+.interp-col p{margin:0; font-size:13.5px;}
+.interp-phrase{margin-top:10px; padding:9px 12px; border-left:3px solid var(--teal); background:rgba(31,122,92,.06); font-size:13px; font-style:italic;}
+
 footer.note{margin-top:40px; padding-top:16px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-soft);}
 
 /* mobile */
@@ -371,6 +382,13 @@ footer.note{margin-top:40px; padding-top:16px; border-top:1px solid var(--line);
       <div class="result-box" id="rentResult"></div>
     </section>
 
+    <section class="panel" data-panel="interpretacao">
+      <div class="kicker">Módulo · Guia de Interpretação</div>
+      <h2>Subiu ou caiu? O que isso quer dizer</h2>
+      <p class="lede">Referência rápida para saber, na hora de escrever, se um número maior ou menor é uma notícia boa ou ruim — com uma frase pronta de exemplo para cada caso. Ajuste os valores X/Y e o sentido (melhora/piora) para os dados reais que você estiver analisando.</p>
+      <div id="interpWrap"></div>
+    </section>
+
     <section class="panel" data-panel="templates">
       <div class="kicker">Módulo 8 · Modelos de texto</div>
       <h2>Gerador de parágrafos para o relatório</h2>
@@ -545,6 +563,7 @@ const PANELS = [
   {id:'liquidez', label:'Índices de Liquidez'},
   {id:'estrutura', label:'Estrutura de Capitais'},
   {id:'rentabilidade', label:'Rentabilidade'},
+  {id:'interpretacao', label:'Guia: sobe ou desce?'},
   {id:'templates', label:'Modelos de texto'},
   {id:'pratique', label:'Pratique com números aleatórios'},
   {id:'resumo', label:'Resumão de fórmulas'},
@@ -1028,6 +1047,107 @@ document.getElementById('pratCheckBtn').onclick=()=>{
   document.getElementById('pratScoreMsg').textContent = `${correct} de ${inputs.length} corretas.`;
 };
 renderPratAll();
+
+/* ================= MODULE: INTERPRETAÇÃO (sobe/desce) ================= */
+const INTERP_GROUPS = [
+  {
+    title: '1 · Índices de Liquidez — regra geral: quanto maior, melhor',
+    note: 'Exceção: na Liquidez Imediata, um valor alto demais também merece atenção — pode ser dinheiro parado em caixa, perdendo rentabilidade em vez de ser investido.',
+    items: [
+      {name:'Liquidez Corrente (LC)', formula:'AC ÷ PC',
+        up:{tag:'good', text:'A empresa passa a ter mais Ativo Circulante para cobrir cada R$1,00 de dívida imediata.'},
+        down:{tag:'bad', text:'Houve redução da folga financeira de curto prazo.'},
+        phrase:'"A liquidez corrente apresentou melhora, passando de R$ X para R$ Y para cada R$ 1,00 de dívida de curto prazo."'},
+      {name:'Liquidez Seca (LS)', formula:'(AC − Estoques) ÷ PC',
+        up:{tag:'good', text:'Melhora no poder de quitar obrigações de curto prazo sem depender da venda do estoque.'},
+        down:{tag:'bad', text:'Aumenta a dependência da venda de estoques para honrar as dívidas.'},
+        phrase:'"A empresa reduziu sua dependência das vendas de estoque para honrar compromissos imediatos."'},
+      {name:'Liquidez Geral (LG)', formula:'(AC + Realizável LP) ÷ (PC + Exigível LP)',
+        up:{tag:'good', text:'Maior solvência geral e segurança financeira também no longo prazo.'},
+        down:{tag:'bad', text:'Redução da margem total de cobertura das dívidas de curto e longo prazo somadas.'},
+        phrase:'"A saúde financeira de longo prazo demonstrou evolução favorável, garantindo a solvência global da operação."'},
+      {name:'Liquidez Imediata (LI)', formula:'Disponibilidades ÷ PC',
+        up:{tag:'warn', text:'Positivo em geral — mais proteção imediata. Mas se ficar alto demais, pode indicar caixa excessivo parado, sem gerar retorno.'},
+        down:{tag:'bad', text:'Menor disponibilidade imediata em dinheiro ou bancos.'},
+        phrase:'"O caixa imediato cobria X% do passivo de curto prazo, o que indica maior disponibilidade monetária instantânea."'},
+    ]
+  },
+  {
+    title: '2 · Índices de Estrutura de Capitais / Endividamento — regra geral: quanto menor, melhor',
+    note: 'Aqui a lógica se inverte em relação à liquidez: mais dívida (em proporção) normalmente significa mais risco financeiro, não mais força.',
+    items: [
+      {name:'Endividamento Geral', formula:'(PC + Exigível LP) ÷ Ativo Total × 100',
+        up:{tag:'bad', text:'O risco financeiro sobe: uma fatia maior do Ativo passou a ser financiada por terceiros.'},
+        down:{tag:'good', text:'A empresa passa a depender menos de capital externo, reduzindo seu risco global.'},
+        phrase:'"O grau de endividamento total variou de X% para Y%, demonstrando maior/menor dependência de capital de terceiros."'},
+      {name:'Composição do Endividamento (CE)', formula:'PC ÷ Capital de Terceiros × 100',
+        up:{tag:'bad', text:'As dívidas ficam mais concentradas no curto prazo, aumentando a pressão sobre o caixa.'},
+        down:{tag:'good', text:'A empresa conseguiu alongar o perfil das dívidas para o longo prazo, ganhando fôlego.'},
+        phrase:'"Houve um alongamento no perfil da dívida, com X% dos débitos vencendo no curto prazo."'},
+      {name:'Participação de Capital de Terceiros (PCT)', formula:'Capital de Terceiros ÷ PL × 100',
+        up:{tag:'bad', text:'Para cada R$1,00 de capital próprio, a empresa passa a dever mais a terceiros.'},
+        down:{tag:'good', text:'A autonomia financeira em relação a bancos e fornecedores aumenta.'},
+        phrase:'"A relação entre capital próprio e de terceiros revela redução da autonomia decisória da gestão."'},
+      {name:'Imobilização do PL (IPL)', formula:'Ativo Permanente ÷ PL × 100',
+        up:{tag:'bad', text:'Uma parte maior do Patrimônio Líquido fica presa em bens imobilizados/intangíveis.'},
+        down:{tag:'good', text:'Sobra mais capital próprio livre, disponível até para financiar o Ativo Circulante.'},
+        phrase:'"O indicador de imobilização mostra que o capital próprio cobriu X% das imobilizações, deixando mais recursos livres."'},
+    ]
+  },
+  {
+    title: '3 · Índices de Rentabilidade e Lucratividade — regra geral: quanto maior, melhor',
+    note: 'Complemento: algumas versões de ROI/ROE usam Ativo Total Médio e PL Médio (média entre início e fim do ano) em vez do valor de fim de ano — confirme qual convenção a professora usa antes de aplicar. Nos dados do Praticar 6, os valores fornecidos já usam saldo de final de ano.',
+    items: [
+      {name:'ROI / TRI (retorno sobre o investimento)', formula:'Lucro Líquido ÷ Ativo Total × 100',
+        up:{tag:'good', text:'A gestão do negócio gerou mais retorno sobre todos os ativos empregados.'},
+        down:{tag:'bad', text:'Queda na eficiência do uso dos ativos operacionais para gerar lucro.'},
+        phrase:'"A rentabilidade dos ativos totais avançou X pontos percentuais, evidenciando maior eficiência operacional."'},
+      {name:'ROE (retorno sobre o Patrimônio Líquido)', formula:'Lucro Líquido ÷ PL × 100',
+        up:{tag:'good', text:'Os sócios/acionistas passam a obter mais rendimento pelo capital que investiram.'},
+        down:{tag:'bad', text:'O investimento dos proprietários passa a trazer um retorno percentual menor.'},
+        phrase:'"O retorno gerado para o capital dos sócios (ROE) evoluiu de X% para Y%, tornando-se mais/menos atrativo aos acionistas."'},
+      {name:'Margem Líquida (ML)', formula:'Lucro Líquido ÷ Receita Líquida × 100',
+        up:{tag:'good', text:'Sobra mais lucro líquido de cada R$1,00 faturado em vendas.'},
+        down:{tag:'bad', text:'Custos, despesas ou impostos absorveram uma parcela maior do faturamento.'},
+        phrase:'"A conversão de vendas em lucro melhorou, resultando em uma margem líquida de X%."'},
+      {name:'Giro do Ativo (GA)', formula:'Receita Líquida ÷ Ativo Total',
+        up:{tag:'good', text:'A empresa vendeu mais vezes em relação ao tamanho dos seus ativos (maior rotação).'},
+        down:{tag:'bad', text:'Os ativos ficaram menos produtivos na geração de faturamento.'},
+        phrase:'"O giro do ativo diminuiu de X para Y vezes, indicando menor aproveitamento da capacidade instalada."'},
+    ]
+  },
+];
+function renderInterp(){
+  const wrap=document.getElementById('interpWrap');
+  wrap.innerHTML='';
+  INTERP_GROUPS.forEach(group=>{
+    const h=document.createElement('h3'); h.style.marginTop='24px'; h.textContent=group.title;
+    wrap.appendChild(h);
+    const rule=document.createElement('p'); rule.className='interp-rule'; rule.textContent=group.note;
+    wrap.appendChild(rule);
+    group.items.forEach(it=>{
+      const card=document.createElement('div'); card.className='interp-card';
+      const tagClass = t=> t==='good'?'good':(t==='bad'?'bad':'');
+      const tagLabel = t=> t==='good'?'POSITIVO':(t==='bad'?'NEGATIVO':'POSITIVO / ATENÇÃO');
+      card.innerHTML = `
+        <h3>${it.name}</h3>
+        <div class="interp-formula">${it.formula}</div>
+        <div class="interp-cols">
+          <div class="interp-col">
+            <div class="dir">Se aumentou <span class="tag ${tagClass(it.up.tag)}">${tagLabel(it.up.tag)}</span></div>
+            <p>${it.up.text}</p>
+          </div>
+          <div class="interp-col">
+            <div class="dir">Se diminuiu <span class="tag ${tagClass(it.down.tag)}">${tagLabel(it.down.tag)}</span></div>
+            <p>${it.down.text}</p>
+          </div>
+        </div>
+        <div class="interp-phrase">${it.phrase}</div>`;
+      wrap.appendChild(card);
+    });
+  });
+}
+renderInterp();
 
 /* ================= MODULE 9: resumo ================= */
 const RESUMO = [
